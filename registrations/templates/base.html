@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cairo University Next Generation Sciences Competition Registration{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'registrations/styles.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="page-container">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="{% static 'registrations/script.js' %}"></script>
+    
+    <!-- Backup JavaScript for add member functionality -->
+    <script>
+        // Simple backup version for add member button
+        function simpleAddMember() {
+            console.log('=== SIMPLE ADD MEMBER CALLED ===');
+            
+            const container = document.getElementById('teamMembers');
+            if (!container) {
+                console.error('Container not found!');
+                alert('Error: Team members container not found');
+                return;
+            }
+            
+            const members = container.querySelectorAll('.member-group');
+            const currentCount = members.length;
+            console.log('Current count:', currentCount);
+            
+            if (currentCount >= 5) {
+                alert('Maximum 5 members allowed');
+                return;
+            }
+            
+            const newMemberNumber = currentCount + 1;
+            console.log('Adding member:', newMemberNumber);
+            
+            // Simple HTML template
+            const memberHTML = `
+                <div class="member-group" data-member="${newMemberNumber}">
+                    <div class="member-header">
+                        <span class="member-title">Member ${newMemberNumber === 1 ? 'Team Leader' : getMemberNumberText(newMemberNumber)}</span>
+                        ${newMemberNumber > 1 ? `<button type="button" class="remove-member" onclick="simpleRemoveMember(${newMemberNumber})">Remove</button>` : ''}
+                    </div>
+                    <div class="member-inputs">
+                        <input type="text" name="member${newMemberNumber}Name" placeholder="${newMemberNumber === 1 ? 'Team Leader Name' : getMemberNumberText(newMemberNumber) + ' Student Name'}" required>
+                        <select name="member${newMemberNumber}Level" required>
+                            <option value="">Academic Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Graduate Studies (Master)</option>
+                            <option value="phd">Graduate Studies (PhD)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', memberHTML);
+            console.log('Member added successfully');
+            
+            // Update button state
+            const addBtn = document.getElementById('addMemberBtn');
+            if (addBtn) {
+                if (container.querySelectorAll('.member-group').length >= 5) {
+                    addBtn.disabled = true;
+                    addBtn.innerHTML = 'Maximum limit reached';
+                }
+            }
+        }
+
+        function simpleRemoveMember(memberNumber) {
+            console.log('Removing member:', memberNumber);
+            const member = document.querySelector(`[data-member="${memberNumber}"]`);
+            if (member) {
+                member.remove();
+                console.log('Member removed');
+            }
+        }
+
+        function getMemberNumberText(memberNum) {
+            const numbers = {
+                1: 'First',
+                2: 'Second', 
+                3: 'Third',
+                4: 'Fourth',
+                5: 'Fifth'
+            };
+            return numbers[memberNum] || memberNum;
+        }
+
+        // Make functions globally available
+        window.simpleAddMember = simpleAddMember;
+        window.simpleRemoveMember = simpleRemoveMember;
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

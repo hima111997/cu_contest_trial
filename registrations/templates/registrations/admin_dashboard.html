@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration Management Dashboard - Cairo University Competition{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-header {
+    background-color: #004C97;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #004C97;
+}
+
+.stat-label {
+    color: #5A6474;
+    margin-top: 5px;
+}
+
+.registration-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.registration-table th,
+.registration-table td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid #ddd;
+}
+
+.registration-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #004C97;
+}
+
+.registration-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.member-list {
+    font-size: 14px;
+    color: #5A6474;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #004C97;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #003B74;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    gap: 10px;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #004C97;
+    border-radius: 4px;
+}
+
+.pagination a:hover {
+    background-color: #004C97;
+    color: white;
+}
+
+.pagination .current {
+    padding: 8px 12px;
+    background-color: #004C97;
+    color: white;
+    border-radius: 4px;
+}
+
+.search-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Registration Management Dashboard</h1>
+    <p>Cairo University Next Generation Sciences Competition Registrations</p>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_registrations }}</div>
+            <div class="stat-label">Total Registrations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ current_date|date:"Y-m-d" }}</div>
+            <div class="stat-label">Today's Date</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ registrations|length }}</div>
+            <div class="stat-label">Current Page</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/registration/export-csv/" class="btn btn-success">
+            📊 Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-info">
+            🖨️ Print
+        </button>
+        <button onclick="refreshPage()" class="btn btn-primary">
+            🔄 Refresh
+        </button>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-form">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by email or member name..." onkeyup="filterTable()">
+    </div>
+
+    <!-- Registrations Table -->
+    <div style="overflow-x: auto;">
+        <table class="registration-table" id="registrationsTable">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Team Leader Email</th>
+                    <th>Team Leader</th>
+                    <th>Number of Members</th>
+                    <th>Team Members</th>
+                    <th>Project Field</th>
+                    <th>Project Category</th>
+                    <th>Registration Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for registration in registrations %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ registration.team_leader_email }}</td>
+                    <td>
+                        {% if registration.members.all %}
+                            {% with leader=registration.members.all.0 %}
+                                {{ leader.name }} ({{ leader.get_level_display }})
+                            {% endwith %}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </td>
+                    <td>{{ registration.get_members_count }}</td>
+                    <td>
+                        <div class="member-list">
+                            {% for member in registration.members.all %}
+                                {{ member.name }} ({{ member.get_level_display }}){% if not forloop.last %}<br>{% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>{{ registration.get_project_field_display }}</td>
+                    <td>{{ registration.get_project_category_display }}</td>
+                    <td>{{ registration.registration_date|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #5A6474; padding: 40px;">
+                        No registrations found yet
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if registrations.has_other_pages %}
+    <div class="pagination">
+        {% if registrations.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ registrations.previous_page_number }}">Previous</a>
+        {% endif %}
+        
+        <span class="current">
+            Page {{ registrations.number }} of {{ registrations.paginator.num_pages }}
+        </span>
+        
+        {% if registrations.has_next %}
+            <a href="?page={{ registrations.next_page_number }}">Next</a>
+            <a href="?page={{ registrations.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterTable() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById('registrationsTable');
+    const tr = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdEmail = tr[i].getElementsByTagName('td')[1];
+        const tdMembers = tr[i].getElementsByTagName('td')[4];
+        
+        if (tdEmail && tdMembers) {
+            const emailText = tdEmail.textContent.toUpperCase();
+            const memberText = tdMembers.textContent.toUpperCase();
+            
+            if (emailText.indexOf(filter) > -1 || memberText.indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+function refreshPage() {
+    location.reload();
+}
+
+// Add print styles
+window.onbeforeprint = function() {
+    document.querySelector('.action-buttons').style.display = 'none';
+    document.querySelector('.search-form').style.display = 'none';
+    document.querySelector('.pagination').style.display = 'none';
+}
+
+window.onafterprint = function() {
+    document.querySelector('.action-buttons').style.display = 'flex';
+    document.querySelector('.search-form').style.display = 'block';
+    document.querySelector('.pagination').style.display = 'flex';
+}
+</script>
+{% endblock %}

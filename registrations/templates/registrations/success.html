@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration Successful - Cairo University Competition{% endblock %}
+
+{% block content %}
+<div class="registration-card">
+    <!-- Success Section -->
+    <div class="hero-section">
+        <div class="success-icon">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="35" fill="#28a745"/>
+                <path d="M25 40l10 10 20-20" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h1 class="main-title">Registration Successful!</h1>
+        <p class="subtitle">Welcome to the Cairo University Next Generation Sciences Competition</p>
+    </div>
+
+    <div class="registration-form">
+        <div class="form-section">
+            <div style="text-align: center; padding: 40px 0;">
+                <h2 class="section-title">What are the next steps?</h2>
+                
+                <div style="margin: 30px 0; text-align: left;">
+                    <h3 style="color: #004C97; margin-bottom: 15px;">📧 Email Verification</h3>
+                    <p style="color: #5A6474; line-height: 1.6;">A confirmation message will be sent to the team leader's email within 24 hours</p>
+                </div>
+
+                <div style="margin: 30px 0; text-align: left;">
+                    <h3 style="color: #004C97; margin-bottom: 15px;">📋 Application Review</h3>
+                    <p style="color: #5A6474; line-height: 1.6;">Your registration application will be reviewed and we will contact you for more details</p>
+                </div>
+
+                <div style="margin: 30px 0; text-align: left;">
+                    <h3 style="color: #004C97; margin-bottom: 15px;">🏆 Competition Participation</h3>
+                    <p style="color: #5A6474; line-height: 1.6;">Upon approval, you will receive complete details for participation</p>
+                </div>
+
+                <div style="background-color: #E6ECF4; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                    <h4 style="color: #004C97; margin-bottom: 10px;">📞 For Inquiries</h4>
+                    <p style="color: #5A6474;">You can contact us via the email attached in the confirmation message</p>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <button onclick="window.location.href='/'" class="submit-btn" style="width: auto; padding: 0 40px;">
+                        Return to Home Page
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto redirect after 10 seconds if user doesn't click
+setTimeout(function() {
+    if (confirm('Would you like to return to the home page?')) {
+        window.location.href = '/';
+    }
+}, 10000);
+</script>
+{% endblock %}

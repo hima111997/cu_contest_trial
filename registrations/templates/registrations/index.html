@@ -1,0 +1,532 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Competition Registration{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Simplified form styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: #004C97;
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.form-container {
+    padding: 40px;
+}
+
+/* Member rows styling */
+.member-section {
+    margin-bottom: 40px;
+}
+
+.member-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.member-row {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.member-row.required {
+    background: #e3f2fd;
+    border: 2px solid #2196F3;
+}
+
+.member-row input,
+.member-row select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.member-row input:focus,
+.member-row select:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.email-row input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.member-row label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Project sections */
+.project-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.project-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: #2196F3;
+    background: #e3f2fd;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+}
+
+.radio-option:has(input:checked) {
+    border-color: #2196F3;
+    background: #e3f2fd;
+}
+
+/* Terms checkbox */
+.terms-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.terms-checkbox input[type="checkbox"] {
+    margin-top: 4px;
+    transform: scale(1.2);
+}
+
+.terms-checkbox label {
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+/* Submit button */
+.submit-section {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.submit-btn {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+/* Error styling */
+.error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
+
+.field-error {
+    border-color: #d32f2f !important;
+    background: #ffebee;
+}
+
+/* Notice styling */
+.notice {
+    background: #e3f2fd;
+    border: 1px solid #2196F3;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+    color: #1976D2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .member-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .radio-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-container {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Competition Registration</h1>
+        <p>Please fill out all required fields</p>
+    </div>
+    
+    <div class="form-container">
+        <div class="notice">
+            <strong>Important:</strong> Please enter all names using English letters only (A-Z). The form requires English characters only.
+        </div>
+        
+        <form id="registrationForm" method="POST">
+            {% csrf_token %}
+            
+            <!-- Contact Email Section -->
+            <div class="member-section">
+                <h2>Contact Information</h2>
+                
+                <!-- Team Leader Email (Required) -->
+                <div class="email-row" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                    <div>
+                        <label>Team Leader Email *</label>
+                        <input type="email" name="team_leader_email" placeholder="Enter your email address in English" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        <div class="error-message">Please enter a valid email address</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Members Section -->
+            <div class="member-section">
+                <h2>Team Members</h2>
+                
+                <!-- Member 1 (Required) -->
+                <div class="member-row required">
+                    <div>
+                        <label>Member 1 Name *</label>
+                        <input type="text" name="member1_name" placeholder="Enter name in English" required>
+                        <div class="error-message">Name must contain only English letters</div>
+                    </div>
+                    <div>
+                        <label>Academic Level *</label>
+                        <select name="member1_level" required>
+                            <option value="">Select Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Master</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Member 2 (Required) -->
+                <div class="member-row required">
+                    <div>
+                        <label>Member 2 Name *</label>
+                        <input type="text" name="member2_name" placeholder="Enter name in English" required>
+                        <div class="error-message">Name must contain only English letters</div>
+                    </div>
+                    <div>
+                        <label>Academic Level *</label>
+                        <select name="member2_level" required>
+                            <option value="">Select Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Master</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Member 3 (Optional) -->
+                <div class="member-row">
+                    <div>
+                        <label>Member 3 Name (Optional)</label>
+                        <input type="text" name="member3_name" placeholder="Enter name in English">
+                        <div class="error-message">Name must contain only English letters</div>
+                    </div>
+                    <div>
+                        <label>Academic Level</label>
+                        <select name="member3_level">
+                            <option value="">Select Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Master</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Member 4 (Optional) -->
+                <div class="member-row">
+                    <div>
+                        <label>Member 4 Name (Optional)</label>
+                        <input type="text" name="member4_name" placeholder="Enter name in English">
+                        <div class="error-message">Name must contain only English letters</div>
+                    </div>
+                    <div>
+                        <label>Academic Level</label>
+                        <select name="member4_level">
+                            <option value="">Select Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Master</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Member 5 (Optional) -->
+                <div class="member-row">
+                    <div>
+                        <label>Member 5 Name (Optional)</label>
+                        <input type="text" name="member5_name" placeholder="Enter name in English">
+                        <div class="error-message">Name must contain only English letters</div>
+                    </div>
+                    <div>
+                        <label>Academic Level</label>
+                        <select name="member5_level">
+                            <option value="">Select Level</option>
+                            <option value="bachelor">Bachelor</option>
+                            <option value="master">Master</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Field Section -->
+            <div class="project-section">
+                <h2>Project Field *</h2>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="project_field" value="health" required>
+                        <span>Health</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="project_field" value="energy" required>
+                        <span>Energy</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="project_field" value="environment" required>
+                        <span>Environment</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Project Category Section -->
+            <div class="project-section">
+                <h2>Project Category *</h2>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="project_category" value="student_research" required>
+                        <span>Student Research Project</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="project_category" value="published_research" required>
+                        <span>Published Scientific Research</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="project_category" value="prototype" required>
+                        <span>Prototype</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="project_category" value="science_communication" required>
+                        <span>Science Translation and Simplification</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="terms-section">
+                <div class="terms-checkbox">
+                    <input type="checkbox" name="accept_terms" id="accept_terms" required>
+                    <label for="accept_terms">I accept the laws and rules of the competition *</label>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="submit-section">
+                <button type="submit" class="submit-btn">Submit Registration</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// English validation for form submission
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    // English letters pattern (A-Z, a-z) plus common name characters
+    const englishPattern = /^[a-zA-Z\s\-\.'`,`]+$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    let hasErrors = false;
+    
+    // Validate email field
+    const emailField = document.querySelector('input[name="team_leader_email"]');
+    if (emailField) {
+        const email = emailField.value.trim();
+        const emailErrorMsg = emailField.parentNode.querySelector('.error-message');
+        
+        if (!email) {
+            emailField.classList.add('field-error');
+            if (emailErrorMsg) emailErrorMsg.style.display = 'block';
+            if (emailErrorMsg) emailErrorMsg.textContent = 'Email address is required';
+            hasErrors = true;
+        } else if (!emailPattern.test(email)) {
+            emailField.classList.add('field-error');
+            if (emailErrorMsg) emailErrorMsg.style.display = 'block';
+            if (emailErrorMsg) emailErrorMsg.textContent = 'Please enter a valid email address';
+            hasErrors = true;
+        } else {
+            emailField.classList.remove('field-error');
+            if (emailErrorMsg) emailErrorMsg.style.display = 'none';
+        }
+    }
+    
+    // Validate all name fields
+    const nameFields = document.querySelectorAll('input[name$="_name"]');
+    
+    nameFields.forEach(field => {
+        const name = field.value.trim();
+        const errorMsg = field.parentNode.querySelector('.error-message');
+        
+        if (name && !englishPattern.test(name)) {
+            field.classList.add('field-error');
+            if (errorMsg) errorMsg.style.display = 'block';
+            hasErrors = true;
+        } else {
+            field.classList.remove('field-error');
+            if (errorMsg) errorMsg.style.display = 'none';
+        }
+    });
+    
+    if (hasErrors) {
+        e.preventDefault();
+        alert('Please correct the highlighted fields. Names must contain only English letters and email must be valid.');
+        return false;
+    }
+    
+    // If validation passes, let the form submit normally
+    console.log('Form validation passed, submitting to Django...');
+});
+
+// Real-time validation for email field
+document.addEventListener('DOMContentLoaded', function() {
+    const emailField = document.querySelector('input[name="team_leader_email"]');
+    if (emailField) {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        
+        emailField.addEventListener('input', function() {
+            const email = this.value.trim();
+            const errorMsg = this.parentNode.querySelector('.error-message');
+            
+            if (email && !emailPattern.test(email)) {
+                this.classList.add('field-error');
+                if (errorMsg) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = 'Please enter a valid email address';
+                }
+            } else {
+                this.classList.remove('field-error');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+    }
+});
+
+// Real-time validation for name fields
+document.querySelectorAll('input[name$="_name"]').forEach(field => {
+    const englishPattern = /^[a-zA-Z\s\-\.'`,`]*$/;
+    
+    field.addEventListener('input', function() {
+        const name = this.value;
+        const errorMsg = this.parentNode.querySelector('.error-message');
+        
+        if (name && !englishPattern.test(name)) {
+            this.classList.add('field-error');
+            if (errorMsg) errorMsg.style.display = 'block';
+        } else {
+            this.classList.remove('field-error');
+            if (errorMsg) errorMsg.style.display = 'none';
+        }
+    });
+});
+
+// Optional member validation - if name entered, level required
+document.querySelectorAll('input[name$="_name"]').forEach(field => {
+    field.addEventListener('input', function() {
+        const memberNum = this.name.replace('_name', '');
+        const levelField = document.querySelector(`select[name="${memberNum}_level"]`);
+        
+        if (this.value.trim() && levelField) {
+            levelField.required = true;
+        } else if (levelField) {
+            levelField.required = false;
+        }
+    });
+});
+</script>
+{% endblock %}
