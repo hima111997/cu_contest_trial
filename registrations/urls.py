@@ -7,4 +7,5 @@ urlpatterns = [
     path('validate-email/', views.validate_email, name='validate_email'),
     path('export-csv/', views.export_csv, name='export_csv'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('migrate/', views.migrate_database, name='migrate_database'),  # Emergency migration endpoint
 ]

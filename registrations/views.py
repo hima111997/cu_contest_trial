@@ -18,6 +18,18 @@ def index(request):
     form = RegistrationForm()
     return render(request, 'registrations/index.html', {'form': form})
 
+def migrate_database(request):
+    """Emergency migration endpoint - remove after setup"""
+    if request.method == 'POST':
+        try:
+            from django.core.management import call_command
+            call_command('migrate', '--run-syncdb', verbosity=0)
+            return JsonResponse({'status': 'success', 'message': 'Database migrated successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'info', 'message': 'POST to this endpoint to run migrations'})
+
 def handle_registration_submission(request):
     """Handle form submission - simplified version"""
     print(f"🔍 Form received: {dict(request.POST)}")
